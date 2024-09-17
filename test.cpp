@@ -4,6 +4,7 @@
 #include "Mesh.h"
 #include "OpenDriveMap.h"
 #include "Road.h"
+#include "RoutingGraph.h"
 
 #include <fstream>
 #include <iostream>
@@ -27,7 +28,7 @@ int main(int argc, char** argv)
 
     for (odr::Road road : odr_map.get_roads())
     {
-        printf("road: %s, length: %.2f\n", road.id.c_str(), road.length);
+        // printf("road: %s, length: %.2f\n", road.id.c_str(), road.length);
         for (odr::LaneSection lanesection : road.get_lanesections())
         {
             const double s_start = lanesection.s0;
@@ -60,19 +61,24 @@ int main(int argc, char** argv)
         }
     }
 
-    printf("Finished, got %lu lane points, %lu roadmark points, %lu road object points, %lu road signal points\n",
-           lane_pts.size(),
-           roadmark_pts.size(),
-           road_object_pts.size(),
-           road_signal_pts.size());
+    // printf("Finished, got %llu lane points, %llu roadmark points, %llu road object points, %llu road signal points, %llu roads\n",
+    //        lane_pts.size(),
+    //        roadmark_pts.size(),
+    //        road_object_pts.size(),
+    //        road_signal_pts.size(),
+    //        odr_map.get_roads().size());
 
     odr::RoadNetworkMesh road_network_mesh = odr_map.get_road_network_mesh(eps);
-    printf("Got road network mesh\n");
+    // printf("Got road network mesh\n");
 
     // std::ofstream out_file("out.obj");
     // out_file << road_network_mesh.get_mesh().get_obj() << std::endl;
     // out_file.close();
     // printf("Wrote .obj file to 'out.obj'\n");
+
+    odr::RoutingGraph routing_graph = odr_map.get_routing_graph();
+
+    // std::cout << "Finish test! routing_graph total sizes: " << routing_graph.edges.size();
 
     return 0;
 }

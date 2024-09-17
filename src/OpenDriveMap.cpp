@@ -30,6 +30,7 @@
 #include <utility>
 #include <vector>
 #include <iostream>
+#include <iomanip>
 
 namespace odr
 {
@@ -392,7 +393,7 @@ OpenDriveMap::OpenDriveMap(const std::string& xodr_file,
                                 {lane_id,
                                  Lane(road_id, s0, lane_id, lane_node.attribute("level").as_bool(false), lane_node.attribute("type").as_string(""))})
                             .first->second;
-
+                    // centerlane没有predecessor和successor，默认是0，struct Lane : public XmlNode中predecessor和successor默认是0
                     if (pugi::xml_node node = lane_node.child("link").child("predecessor"))
                         lane.predecessor = node.attribute("id").as_int(0);
                     if (pugi::xml_node node = lane_node.child("link").child("successor"))
@@ -745,6 +746,7 @@ RoutingGraph OpenDriveMap::get_routing_graph() const
 {
     RoutingGraph routing_graph;
     // for each road
+    std::cout << std::fixed << std::setprecision(5);
     for (const auto& id_road : id_to_road)
     {
         const Road& road = id_road.second;
@@ -755,6 +757,9 @@ RoutingGraph OpenDriveMap::get_routing_graph() const
 
             auto prev_lanesection = adjacent_lanesection(road, lanesec, true);
             auto next_lanesection = adjacent_lanesection(road, lanesec, false);
+
+            // printf("prev_road: %s, lanesec: %.3f), (curr_road: %s, lanesec: %.3f)",
+            //     prev_lanesection.value().road_id, prev_lanesection.value().s0, lanesec.road_id, lanesec.s0);
 
             // for each lane
             for (const auto& id_lane : lanesec.id_to_lane)
@@ -777,13 +782,28 @@ RoutingGraph OpenDriveMap::get_routing_graph() const
                 }
                 if (predecessor)
                 {
-                    double lane_length = road.get_lanesection_length(predecessor.value().key.lanesection_s0);
+                    double lane_length;
+                    auto prev_road_iter = id_to_road.find(predecessor.value().key.road_id);
+                    if (!(prev_road_iter == id_to_road.end()))
+                    {
+                        auto prev_road = prev_road_iter->second;
+                        lane_length = prev_road.get_lanesection_length(predecessor.value().key.lanesection_s0);
+                    }
+                    else
+                    {
+                        lane_length = 0.0;
+                    }
+                    // double lane_length = road.get_lanesection_length(predecessor.value().key.lanesection_s0);
                     routing_graph.add_edge(RoutingGraphEdge(predecessor.value().key, lane.key, lane_length));
+                    std::cout << predecessor.value().key.road_id << "," << predecessor.value().key.lanesection_s0 << ","<< predecessor.value().key.lane_id << ","
+                             << lane.key.road_id << "," << lane.key.lanesection_s0 << ","<< lane.key.lane_id << "," << lane_length << std::endl;
                 }
                 if (successor)
                 {
                     double lane_length = road.get_lanesection_length(lane.key.lanesection_s0);
                     routing_graph.add_edge(RoutingGraphEdge(lane.key, successor.value().key, lane_length));
+                    std::cout << lane.key.road_id << "," << lane.key.lanesection_s0 << ","<< lane.key.lane_id << ","
+                             << successor.value().key.road_id << "," << successor.value().key.lanesection_s0 << ","<< successor.value().key.lane_id << "," << lane_length << std::endl;
                 }
             }
         }
@@ -817,6 +837,7 @@ RoutingGraph OpenDriveMap::get_routing_graph() const
 
                 for (const JunctionLaneLink& lane_link : conn.lane_links)
                 {
+                    // 中心线
                     if (lane_link.from == 0 || lane_link.to == 0)
                         continue;
 
@@ -833,6 +854,8 @@ RoutingGraph OpenDriveMap::get_routing_graph() const
                     const double  lane_length = incoming_road.get_lanesection_length(incoming_lanesec);
 
                     routing_graph.add_edge(RoutingGraphEdge(from, to, lane_length));
+                    std::cout << from.road_id << "," << from.lanesection_s0 << ","<< from.lane_id << ","
+                    << to.road_id << "," << to.lanesection_s0 << ","<< to.lane_id << "," << lane_length << std::endl;
                 }
             }
         }
@@ -844,6 +867,7 @@ std::optional<Lane> OpenDriveMap::get_connecting_lane(const Lane& lane, bool pre
 {
     if (target_lanesection)
     {
+        // 如果predecessor和successor为空，target_lane_id默认为0，找到的it->second默认为中心车道
         int  target_lane_id = predecessors ? lane.predecessor : lane.successor;
         auto it = target_lanesection.value().id_to_lane.find(target_lane_id);
         if (it != target_lanesection.value().id_to_lane.end())

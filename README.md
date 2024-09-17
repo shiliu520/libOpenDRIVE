@@ -40,7 +40,8 @@ std::cout << road_network_mesh.get_mesh().get_obj() << std::endl;
 To build a static library by default, simply run:
 ```bash
 mkdir build && cd build
-cmake ..
+# cmake ..
+cmake ../CMakeLists.txt -G "MinGW Makefiles"
 make
 ```
 
