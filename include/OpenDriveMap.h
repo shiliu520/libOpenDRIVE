@@ -34,6 +34,7 @@ public:
 
     RoadNetworkMesh get_road_network_mesh(const double eps) const;
     RoutingGraph    get_routing_graph() const;
+    road_st         get_curr_topo_pos(const double x, const double y) const;
 
     std::optional<Lane>        get_connecting_lane(const Lane& lane, bool predecessors, std::optional<LaneSection> target_lanesection) const;
     std::optional<LaneSection> adjacent_lanesection(const Road& current_road, const LaneSection& current_lanesection, bool predecessors) const;

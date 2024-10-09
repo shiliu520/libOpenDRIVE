@@ -61,12 +61,12 @@ int main(int argc, char** argv)
         }
     }
 
-    // printf("Finished, got %llu lane points, %llu roadmark points, %llu road object points, %llu road signal points, %llu roads\n",
-    //        lane_pts.size(),
-    //        roadmark_pts.size(),
-    //        road_object_pts.size(),
-    //        road_signal_pts.size(),
-    //        odr_map.get_roads().size());
+    printf("Finished, got %llu lane points, %llu roadmark points, %llu road object points, %llu road signal points, %llu roads\n",
+           lane_pts.size(),
+           roadmark_pts.size(),
+           road_object_pts.size(),
+           road_signal_pts.size(),
+           odr_map.get_roads().size());
 
     odr::RoadNetworkMesh road_network_mesh = odr_map.get_road_network_mesh(eps);
     // printf("Got road network mesh\n");
@@ -77,6 +77,12 @@ int main(int argc, char** argv)
     // printf("Wrote .obj file to 'out.obj'\n");
 
     odr::RoutingGraph routing_graph = odr_map.get_routing_graph();
+
+    double x = 273.76;
+    double y = -129.82;
+    odr::road_st pointinfo = odr_map.get_curr_topo_pos(x, y);
+    printf("x: %.3f, y: %.3f\n", x, y);
+    pointinfo.print();
 
     // std::cout << "Finish test! routing_graph total sizes: " << routing_graph.edges.size();
 

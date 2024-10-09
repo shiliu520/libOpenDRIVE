@@ -20,6 +20,36 @@ namespace odr
 struct Lane;
 struct RoadMark;
 
+struct road_st
+{
+    std::string roadId;
+    double      lanesection_s0;
+    int         laneId;
+    std::string laneType;
+    bool        inRoad;
+    double      s;
+    double      t;
+    double      hdg;
+
+    road_st()
+    {
+        roadId = "-1";
+        lanesection_s0 = -1.0;
+        laneId = 0xFF;
+        laneType = "unknown";
+        inRoad = false;
+        s = 0;
+        t = 0;
+        hdg = 0;
+    }
+
+    void print()
+    {
+        printf("roadId: %s, lanesection_s0: %.3f, laneId: %d, s: %.3f, t: %.3f\n",
+            roadId.c_str(), lanesection_s0, laneId, s, t);
+    }
+};
+
 struct Crossfall : public CubicSpline
 {
     enum Side
@@ -99,6 +129,7 @@ public:
 
     Vec3D get_xyz(const double s, const double t, const double h, Vec3D* e_s = nullptr, Vec3D* e_t = nullptr, Vec3D* e_h = nullptr) const;
     Vec3D get_surface_pt(double s, const double t, Vec3D* vn = nullptr) const;
+        road_st get_st(const double x, const double y) const;
 
     Line3D get_lane_border_line(const Lane& lane, const double s_start, const double s_end, const double eps, const bool outer = true) const;
     Line3D get_lane_border_line(const Lane& lane, const double eps, const bool outer = true) const;

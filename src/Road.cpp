@@ -613,4 +613,81 @@ std::optional<LaneSection> Road::get_previous_lanesection(const LaneSection& lan
     }
     return std::nullopt; // If at the beginning, no previous section exists
 }
+
+road_st Road::get_st(const double x, const double y) const
+{
+    road_st st;
+    double  closestS = 0;
+
+    try
+    {
+        closestS = ref_line.match(x, y);
+        double x1 = ref_line.get_xyz(closestS)[0];
+        double y1 = ref_line.get_xyz(closestS)[1];
+        Vec2D dir_vec = ref_line.get_geometry(closestS)->get_grad(closestS);
+        double hdg = std::atan2(dir_vec[1], dir_vec[0]);
+
+        auto CrossProduct2D = [&](double x1, double y1, double x2, double y2) -> double { return x1 * y2 - x2 * y1; };
+
+        auto DotProduct2D = [&](double x1, double y1, double x2, double y2) -> double { return x1 * x2 + y1 * y2; };
+
+        auto PointToLineDistance2D = [&](double px, double py, double lx0, double ly0, double lx1, double ly1) -> double
+        {
+            double l0x = lx1 - lx0;
+            double l0y = ly1 - ly0;
+            double cp = CrossProduct2D(lx1 - lx0, ly1 - ly0, px - lx0, py - ly0);
+            double l0Length = sqrt(l0x * l0x + l0y * l0y);
+            return cp / l0Length;
+        };
+
+        double t = PointToLineDistance2D(x, y, x1, y1, x1 + cos(hdg), y1 + sin(hdg));
+
+        auto lanes = this->get_lanesection(closestS).get_lanes();
+        std::sort(lanes.begin(), lanes.end(), [](const Lane& a, const Lane& b) { return a.id < b.id; });
+
+        double x2 = std::cos(hdg) * 100 + x1;
+        double y2 = std::sin(hdg) * 100 + y1;
+        double va_x = x2 - x1;
+        double va_y = y2 - y1;
+        double vb_x = x - x1;
+        double vb_y = y - y1;
+
+        double dp = DotProduct2D(va_x, va_y, vb_x, vb_y);
+        double va_val = std::sqrt(va_x * va_x + va_y * va_y);
+        double vb_val = std::sqrt(vb_x * vb_x + vb_y * vb_y);
+        double theta = dp / (va_val * vb_val);
+
+        if (theta < -1 && theta > -2)
+            theta = -1;
+        if (theta > 1 && theta < 2)
+            theta = 1;
+
+        double degrees = acos(theta) * 180 / M_PI;
+        if ((90 - degrees) < -0.005 || lanes.empty() || t < lanes.front().outer_border.get(closestS) ||
+            t > lanes.back().outer_border.get(closestS))
+        {
+            st.inRoad = false;
+            return st;
+        }
+
+        st.s = closestS;
+        st.t = t;
+        st.hdg = hdg;
+
+        LaneSection curr_laneSection = get_lanesection(st.s);
+        double lanesection_s0 = curr_laneSection.s0;
+        auto lane = curr_laneSection.get_lane(st.s, st.t);
+        st.laneId = lane.id;
+        st.laneType = lane.type;
+        st.lanesection_s0 = lanesection_s0;
+        st.roadId = id;
+        st.inRoad = true;
+        return st;
+    }
+    catch (const std::exception& e)
+    {
+        printf("%s\n", e.what());
+        return road_st();
+    }
+}
 } // namespace odr

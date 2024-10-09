@@ -795,15 +795,15 @@ RoutingGraph OpenDriveMap::get_routing_graph() const
                     }
                     // double lane_length = road.get_lanesection_length(predecessor.value().key.lanesection_s0);
                     routing_graph.add_edge(RoutingGraphEdge(predecessor.value().key, lane.key, lane_length));
-                    std::cout << predecessor.value().key.road_id << "," << predecessor.value().key.lanesection_s0 << ","<< predecessor.value().key.lane_id << ","
-                             << lane.key.road_id << "," << lane.key.lanesection_s0 << ","<< lane.key.lane_id << "," << lane_length << std::endl;
+                    // std::cout << predecessor.value().key.road_id << "," << predecessor.value().key.lanesection_s0 << ","<< predecessor.value().key.lane_id << ","
+                    //          << lane.key.road_id << "," << lane.key.lanesection_s0 << ","<< lane.key.lane_id << "," << lane_length << std::endl;
                 }
                 if (successor)
                 {
                     double lane_length = road.get_lanesection_length(lane.key.lanesection_s0);
                     routing_graph.add_edge(RoutingGraphEdge(lane.key, successor.value().key, lane_length));
-                    std::cout << lane.key.road_id << "," << lane.key.lanesection_s0 << ","<< lane.key.lane_id << ","
-                             << successor.value().key.road_id << "," << successor.value().key.lanesection_s0 << ","<< successor.value().key.lane_id << "," << lane_length << std::endl;
+                    // std::cout << lane.key.road_id << "," << lane.key.lanesection_s0 << ","<< lane.key.lane_id << ","
+                    //          << successor.value().key.road_id << "," << successor.value().key.lanesection_s0 << ","<< successor.value().key.lane_id << "," << lane_length << std::endl;
                 }
             }
         }
@@ -854,8 +854,8 @@ RoutingGraph OpenDriveMap::get_routing_graph() const
                     const double  lane_length = incoming_road.get_lanesection_length(incoming_lanesec);
 
                     routing_graph.add_edge(RoutingGraphEdge(from, to, lane_length));
-                    std::cout << from.road_id << "," << from.lanesection_s0 << ","<< from.lane_id << ","
-                    << to.road_id << "," << to.lanesection_s0 << ","<< to.lane_id << "," << lane_length << std::endl;
+                    // std::cout << from.road_id << "," << from.lanesection_s0 << ","<< from.lane_id << ","
+                    // << to.road_id << "," << to.lanesection_s0 << ","<< to.lane_id << "," << lane_length << std::endl;
                 }
             }
         }
@@ -906,4 +906,20 @@ OpenDriveMap::adjacent_lanesection(const Road& current_road, const LaneSection& 
     return lanesection;
 }
 
+road_st OpenDriveMap::get_curr_topo_pos(const double x, const double y) const
+{
+    road_st pointinfo;
+    for (const auto& id_road : id_to_road)
+    {
+        const Road& road = id_road.second;
+        pointinfo = road.get_st(x, y);
+        if (pointinfo.inRoad)
+        {
+            pointinfo.print();
+            // return pointinfo;
+        }
+    }
+    printf("cannot find match topo pos.\n");
+    return road_st();
+}
 } // namespace odr
