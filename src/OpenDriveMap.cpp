@@ -908,18 +908,38 @@ OpenDriveMap::adjacent_lanesection(const Road& current_road, const LaneSection& 
 
 road_st OpenDriveMap::get_curr_topo_pos(const double x, const double y) const
 {
+    double  proj_point_dist;
     road_st pointinfo;
+    std::vector<road_st> proj_points;
+    std::vector<double> proj_point_dists;
     for (const auto& id_road : id_to_road)
     {
         const Road& road = id_road.second;
         pointinfo = road.get_st(x, y);
         if (pointinfo.inRoad)
         {
-            pointinfo.print();
-            // return pointinfo;
+            // pointinfo.print();
+            proj_points.push_back(pointinfo);
+            proj_point_dist = sqrt(pow(x - pointinfo.x, 2) + pow(y - pointinfo.y, 2));
+            proj_point_dists.push_back(proj_point_dist);
         }
     }
-    printf("cannot find match topo pos.\n");
-    return road_st();
+    if (proj_points.size() >= 2)
+    {
+        auto minElementIt = std::min_element(proj_point_dists.begin(), proj_point_dists.end());
+        if (minElementIt == proj_point_dists.end()) {
+            return road_st();
+        }
+        return proj_points.at(std::distance(proj_point_dists.begin(), minElementIt));
+    }
+    else if (proj_points.size() == 1)
+    {
+        return proj_points.at(0);
+    }
+    else
+    {
+        printf("cannot find match topo pos.\n");
+        return road_st();
+    }
 }
 } // namespace odr

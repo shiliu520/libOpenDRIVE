@@ -30,6 +30,8 @@ struct road_st
     double      s;
     double      t;
     double      hdg;
+    double      x;
+    double      y;
 
     road_st()
     {
@@ -41,6 +43,8 @@ struct road_st
         s = 0;
         t = 0;
         hdg = 0;
+        x = 0;
+        y = 0;
     }
 
     void print()

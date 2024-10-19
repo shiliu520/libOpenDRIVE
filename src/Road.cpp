@@ -682,6 +682,8 @@ road_st Road::get_st(const double x, const double y) const
         st.lanesection_s0 = lanesection_s0;
         st.roadId = id;
         st.inRoad = true;
+        st.x = x1;
+        st.y = y1;
         return st;
     }
     catch (const std::exception& e)
