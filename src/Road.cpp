@@ -663,7 +663,7 @@ road_st Road::get_st(const double x, const double y) const
             theta = 1;
 
         double degrees = acos(theta) * 180 / M_PI;
-        if ((90 - degrees) < -0.005 || lanes.empty() || t < lanes.front().outer_border.get(closestS) ||
+        if ((90 - degrees) < -0.05 || lanes.empty() || t < lanes.front().outer_border.get(closestS) ||
             t > lanes.back().outer_border.get(closestS))
         {
             st.inRoad = false;

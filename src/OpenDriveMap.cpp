@@ -915,6 +915,7 @@ road_st OpenDriveMap::get_curr_topo_pos(const double x, const double y) const
     for (const auto& id_road : id_to_road)
     {
         const Road& road = id_road.second;
+        int num = std::stoi(road.id);
         pointinfo = road.get_st(x, y);
         if (pointinfo.inRoad)
         {

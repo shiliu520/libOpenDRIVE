@@ -78,8 +78,8 @@ int main(int argc, char** argv)
 
     odr::RoutingGraph routing_graph = odr_map.get_routing_graph();
 
-    double x = 91.81;
-    double y = -164.32;
+    double x = 218.09;
+    double y = -326.54;
     odr::road_st pointinfo = odr_map.get_curr_topo_pos(x, y);
     printf("x: %.3f, y: %.3f\n", x, y);
     pointinfo.print();
