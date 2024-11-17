@@ -86,5 +86,14 @@ int main(int argc, char** argv)
 
     // std::cout << "Finish test! routing_graph total sizes: " << routing_graph.edges.size();
 
+    odr::LaneKey from("15" /*road id*/, 0.0 /*lane section s0*/, 1 /*lane id*/);
+    odr::LaneKey to("19", 0.0, -1);
+    std::vector<odr::LaneKey> path = routing_graph.shortest_path(from, to);
+    for (int32_t i = 0; i < path.size(); i++)
+    {
+        odr::LaneKey vertex = path.at(i);
+        std::cout << vertex.to_string() << std::endl;
+    }
+
     return 0;
 }

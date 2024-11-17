@@ -67,7 +67,7 @@ std::vector<LaneKey> RoutingGraph::shortest_path(const LaneKey& from, const Lane
             }
             path.push_back(from);
             std::reverse(path.begin(), path.end());
-            std::cout << "found route" << std::endl;
+            std::cout << "found route, " << "route_length: " << cost_from_start[to] << std::endl;
             return path;
         }
         // Check if this is a stale entry
